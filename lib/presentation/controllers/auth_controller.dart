@@ -34,17 +34,17 @@ import 'package:task_manager/core/firebase/firebase_key.dart';
     try {
       isLoading.value = true;
       debugPrint('🔄 Google Sign-In started');
-
-      final GoogleSignInAccount? googleAuth = await googleSignIn.authenticate();
-      if (googleAuth == null) {
+      final GoogleSignInAccount? googleUser = await googleSignIn.authenticate();
+      if (googleUser == null) {
         Get.snackbar('Cancelled', 'Google sign-in cancelled');
         return;
       }
       debugPrint('✅ Google tokens received');
       // Google se mila token ko Firebase ke liye credential mein convert karte hain
+      final googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.email,
-        idToken: googleAuth.id,
+        accessToken: null,
+        idToken: googleAuth.idToken,
       );
       debugPrint('Login email : ${credential.accessToken}');
       // Firebase mein actual login (ye user ko Firebase ke database mein register karta hai)
