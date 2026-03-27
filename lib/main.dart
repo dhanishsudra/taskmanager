@@ -5,11 +5,19 @@ import 'package:task_manager/app/routes/app_pages.dart';
 import 'package:task_manager/app/routes/app_routes.dart'; // ← ye CLI ne generate kiya hai
 import 'firebase_options.dart';
 
-void main()async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    // Ignore duplicate-app error safely
+  }
+
   runApp(const MyApp());
 }
 

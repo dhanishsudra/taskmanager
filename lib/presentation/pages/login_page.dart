@@ -19,11 +19,14 @@ class LoginPage extends GetView<AuthController> {
         child: Obx(() => Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Welcome to TaskFlow', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            const Text('Welcome to google login', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
             const SizedBox(height: 40),
             ElevatedButton(
-              onPressed: controller.isLoading.value ? null : () => controller.signInWithGoogle(),
-              child: const Text('Continue with Google'),
+              onPressed: controller.isLoading.value ? null : () {
+                controller.signInWithGoogle();
+                debugPrint('After signInWithGoogle call');
+              },
+                child: const Text('Continue with Google'),
             ),
             if (controller.isLoading.value) const CircularProgressIndicator(),
             const SizedBox(height: 20),
@@ -32,7 +35,8 @@ class LoginPage extends GetView<AuthController> {
               child: const Text('Skip (Testing)'),
             ),
           ],
-        )),
+        )
+        ),
       ),
     );
   }

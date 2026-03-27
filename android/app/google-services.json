@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "493705642159",
-    "project_id": "taskflow-56488",
-    "storage_bucket": "taskflow-56488.firebasestorage.app"
+    "project_number": "1042864166205",
+    "project_id": "taskflow-f354b",
+    "storage_bucket": "taskflow-f354b.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:493705642159:android:680aaf74849687fec2545a",
+        "mobilesdk_app_id": "1:1042864166205:android:9b20797142cf9823772154",
         "android_client_info": {
           "package_name": "com.example.task_manager"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1042864166205-5drcnc0t8i1i00o73v7p1272upphdsd3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.task_manager",
+            "certificate_hash": "6183df26b658f1a8ca649b2a938a024225e730cf"
+          }
+        },
+        {
+          "client_id": "1042864166205-lculmalcgk1ed8vkidfqqt0hoaialqqj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDMcYlXr0j5W48vgOsw4sDuAEctFUVMb5c"
+          "current_key": "AIzaSyB63RoOT8YPW3IgEmGqqnXagzby_dMDkqw"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1042864166205-lculmalcgk1ed8vkidfqqt0hoaialqqj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
