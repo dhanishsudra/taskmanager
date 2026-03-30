@@ -1,67 +1,93 @@
-import 'dart:ffi';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:task_manager/app/routes/app_routes.dart';
-import 'package:flutter/material.dart';
-import 'package:task_manager/core/firebase/firebase_key.dart';
+import 'package:task_manager/domain/models/user_entity.dart';
+import 'package:task_manager/domain/repositories/auth_repository_impl.dart';
+import 'package:task_manager/domain/usecases/login_use_case.dart';
+import 'package:task_manager/domain/usecases/logout_use_case.dart';
 
-class AuthController extends GetxController {
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance; //Firebase Auth ka official instance
-  final GoogleSignIn googleSignIn = GoogleSignIn(); // ← singleton (no constructor)
 
-  Rx<User?> firebaseUser = Rx<User?>(null);
-  RxBool isLoading = false.obs;
+class AuthController extends GetxController{
+
+  late final LoginUseCase loginUseCase;
+  late final LogoutUseCase logoutUseCase;
+
+  final Rx<UserEntity?> currentUser = Rx<UserEntity?>(null);
+  final RxBool isLoading = false.obs;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   @override
   void onInit() {
-    // Firebase se real-time user changes sunta hai (login/logout detect karega)
-    firebaseUser.bindStream(firebaseAuth.authStateChanges());
-    initializeGoogleSIgnIn(); // initialize must call before authenticate
+    final authRepository = AuthRepositoryImpl(_auth);
+
+    loginUseCase = LoginUseCase(authRepository);
+    logoutUseCase = LogoutUseCase(authRepository);
+
+    // Real-time user changes
+    authRepository.authStateChanges.listen((user) {
+      currentUser.value = user;
+    });
     super.onInit();
   }
 
-  Future<void> initializeGoogleSIgnIn() async {
-    try {
-      await googleSignIn.serverClientId != null?(
-        serverClientId: FirebaseKey.firebaseGoogleAuthKey,
-      ) : null;
-      debugPrint('GoogleSignIn initialized successfully');
-    } catch (e) {
-      debugPrint('GoogleSignIn initialize error: $e');
-    }
-  }
+
 
   Future<void> signInWithGoogle() async {
     try {
       isLoading.value = true;
-      debugPrint('🔄 Google Sign-In started');
-      final GoogleSignInAccount? user = await googleSignIn.signIn();
+      print('🔄 Google Sign-In started');
 
-      // Google gcp se mila token ko Firebase ke liye credential mein convert karte hain
-      final googleAuth = await user?.authentication;
+      await _googleSignIn.signOut(); // fresh attempt
+
+      final  googleAuth =
+      await _googleSignIn.signIn();
+
+      if (googleAuth == null) {
+        print('User cancelled Google sign-in');
+        Get.snackbar('Cancelled', 'Sign-in cancel ho gaya');
+        return;
+      }
+
+      print('✅ Google tokens received');
+
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
+        accessToken: null,
+        idToken: googleAuth.id,
       );
-      debugPrint('✅ Google tokens received');
-      debugPrint('Login email : ${credential.accessToken}');
-      // Firebase mein actual login (ye user ko Firebase ke database mein register karta hai)
-      await firebaseAuth.signInWithCredential(credential); // firebase ko
-      Get.offAllNamed(AppRoutes.home);
-      Get.snackbar('Success', 'login successful by Google!');
+
+      final UserCredential userCredential =
+      await _auth.signInWithCredential(credential);
+
+      final user = UserEntity(
+        uid: userCredential.user!.uid,
+        email: userCredential.user!.email!,
+        displayName: userCredential.user!.displayName,
+        photoUrl: userCredential.user!.photoURL,
+      );
+
+      currentUser.value = user;
+
+      Get.offAllNamed('/home', predicate: (route) => false);
+      Get.snackbar('Success', 'Welcome ${user.email}!');
+
     } catch (e) {
-      Get.snackbar('Error', e.toString());
-      print(e.toString());
+      print(' Google Sign-In Error: $e');
+      Get.snackbar('Error', 'Google Sign-In failed. Please try again.');
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> logout() async {
-    await firebaseAuth.signOut();
-    await googleSignIn.signOut();
-    Get.offAllNamed(AppRoutes.login);
+    try {
+      await logoutUseCase.call();
+      await _googleSignIn.signOut();
+      currentUser.value = null;
+      Get.offAllNamed('/login');
+    } catch (e) {
+      Get.snackbar('Error', 'Logout failed');
+    }
   }
 }

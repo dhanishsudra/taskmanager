@@ -6,7 +6,6 @@ import 'package:task_manager/presentation/controllers/auth_controller.dart';
 class LoginPage extends GetView<AuthController> {
   const LoginPage({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

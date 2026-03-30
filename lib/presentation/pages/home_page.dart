@@ -29,7 +29,7 @@ class HomePage extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
-            TextButton(onPressed: controller.logout, child: Text('Logout this email')),
+            TextButton(onPressed: controller.logoutUseCase.call, child: Text('Logout this email')),
           ],
         ),
       ),
