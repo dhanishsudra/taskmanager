@@ -15,7 +15,7 @@ void main() async {
       );
     }
   } catch (e) {
-    // Ignore duplicate-app error safely
+    debugPrint('error in firebase initialization: ${e.toString()}');
   }
 
   runApp(const MyApp());
